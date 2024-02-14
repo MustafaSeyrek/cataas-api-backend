@@ -20,16 +20,9 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping("/api/cats")
 @AllArgsConstructor
+@CrossOrigin("http://localhost:3000")
 public class CatController {
     private final CatService catService;
-
-    /*@GetMapping
-    public ResponseEntity<Resource> getFileByCode() {
-        Resource resource = null;
-
-        return new ResponseEntity<>(catService.getCatFromApi(), OK);
-
-    }*/
 
     @GetMapping
     public ResponseEntity<List<Cat>> getAllFiles() {
