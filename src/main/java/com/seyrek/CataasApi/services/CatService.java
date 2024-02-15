@@ -3,10 +3,12 @@ package com.seyrek.CataasApi.services;
 import com.seyrek.CataasApi.entities.Cat;
 import com.seyrek.CataasApi.repositories.CatRepository;
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -14,11 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.core.env.Environment;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
@@ -84,11 +84,22 @@ public class CatService {
         catRepository.deleteByCode(code);
     }
 
-    public Resource getCatFromApi() {
+    //first day of every month 8:00
+    @Scheduled(cron = "0 0 8 1 * *")
+    public void cleanupProcess() throws IOException {
+        Path dirPath = this.fileStorageLocation;
+        File file = new File(String.valueOf(dirPath.toAbsolutePath()));
+        FileUtils.deleteDirectory(file);
+        file.delete();
+        catRepository.deleteAll();
+    }
+
+    /*public Resource getCatFromApi() {
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://cataas.com/cat/funny?position=centre";
         ResponseEntity<Resource> response = restTemplate.getForEntity(url, Resource.class);
         Resource res = response.getBody();
         return res;
     }
+     */
 }
